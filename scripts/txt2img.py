@@ -2,15 +2,15 @@ import argparse, os, sys, glob
 import cv2
 import torch
 import numpy as np
-from omegaconf import OmegaConf
+from omegaconf import OmegaConf     # 处理配置文件的Python包，提供了一个层次化的配置系统，可以从多个源（如YAML配置文件、数据类/对象和命令行参数）合并配置，并提供一致的API
 from PIL import Image
 from tqdm import tqdm, trange
 from imwatermark import WatermarkEncoder
 from itertools import islice
-from einops import rearrange
-from torchvision.utils import make_grid
+from einops import rearrange                # 重新排列张量的轴顺序
+from torchvision.utils import make_grid     # 将多个图像以网格形式进行排列，以方便可视化和展示
 import time
-from pytorch_lightning import seed_everything
+from pytorch_lightning import seed_everything   # 设置伪随机数生成器的种子，以确保实验的可重现性和一致性
 from torch import autocast
 from contextlib import contextmanager, nullcontext
 
