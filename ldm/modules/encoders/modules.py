@@ -135,7 +135,15 @@ class SpatialRescaler(nn.Module):
         return self(x)
 
 class FrozenCLIPEmbedder(AbstractEncoder):
-    """Uses the CLIP transformer encoder for text (from Hugging Face)"""
+    """Uses the CLIP transformer encoder for text (from Hugging Face)
+    STEP-TRAINING 2 FrozenCLIPEmbedder
+    使用 FrozenCLIPEmbedder 文本编码器对 Prompt 提示词进行编码，生成大小为 [B, K, E] 的 embedding 表示（即 context），
+    其中 K 表示文本最大编码长度 max length, E 表示 embedding 的大小。
+    这一过程在 Stable Diffusion 代码中被称为 get_learned_conditioning；
+
+    STEP-SAMPLING 1
+    使用 FrozenCLIPEmbedder 文本编码器对 Prompt 提示词进行编码，生成大小为 [B, K, E] 的 embedding 表示（即 context）;
+    """
     def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77):
         super().__init__()
         self.tokenizer = CLIPTokenizer.from_pretrained(version)

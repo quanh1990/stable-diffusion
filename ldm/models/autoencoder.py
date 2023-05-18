@@ -283,6 +283,20 @@ class VQModelInterface(VQModel):
 
 
 class AutoencoderKL(pl.LightningModule):
+    """
+    STEP-TRAINING 1 AutoencoderKL
+    使用 AutoencoderKL 自编码器将图像 Image 从 pixel space 映射到 latent space，学习图像的隐式表达，
+    注意 AutoencoderKL 编码器已提前训练好，参数是固定的。此时 Image 的大小将从 [B, C, H, W] 转换为 [B, Z, H/8, W/8]，
+    其中 Z 表示 latent space 下图像的 Channel 数。这一过程在 Stable Diffusion 代码中被称为 encode_first_stage
+
+    STEP-SAMPLING 3
+    使用 AutoEncoderKL 对图像的 latent 表示（大小为 [B, Z, H/8, W/8]）进行 decode（解码），
+    最终恢复出 pixel space 的图像，图像大小为 [B, C, H, W];
+    这一过程在 Stable Diffusion 中被称为 decode_first_stage。
+
+    "latent space"（潜空间）是指一个较低维度的空间，用于将输入图像压缩到其中并进行处理。
+    通过将图像映射到潜空间，可以减少计算的复杂性，从而提高处理速度。
+    """
     def __init__(self,
                  ddconfig,
                  lossconfig,

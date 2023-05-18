@@ -412,6 +412,13 @@ class QKVAttention(nn.Module):
 
 class UNetModel(nn.Module):
     """
+    STEP-TRAINING 3 UNetModel
+    对图像的隐式表达进行不断加噪进行前向扩散过程（Diffusion Process），之后对加噪后的图像调用 UNetModel 对噪声进行预估；
+    UNetModel 同时接收图像的隐式表达 latent image 以及文本 embedding context，在训练时以 context 作为 condition，
+    使用 Attention 机制来更好的学习文本与图像的匹配关系；
+
+    STEP-SAMPLING 2
+    随机产出大小为 [B, Z, H/8, W/8] 的噪声 Noise，利用训练好的 UNetModel 模型，按照 DDPM/DDIM/PLMS 等算法迭代 T 次，将噪声不断去除，恢复出图像的 latent 表示；
     The full UNet model with attention and timestep embedding.
     :param in_channels: channels in the input Tensor.
     :param model_channels: base channel count for the model.
