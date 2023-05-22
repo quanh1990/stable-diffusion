@@ -160,6 +160,8 @@ def worker_init_fn(_):
 
 
 class DataModuleFromConfig(pl.LightningDataModule):
+    """ 定义了一个可配置的数据模块，根据传入的数据集配置以及其他参数创建和设置数据加载器，包括训练、验证、测试和预测数据加载器。
+    """
     def __init__(self, batch_size, train=None, validation=None, test=None, predict=None,
                  wrap=False, num_workers=None, shuffle_test_loader=False, use_worker_init_fn=False,
                  shuffle_val_dataloader=False):
@@ -287,27 +289,32 @@ class SetupCallback(Callback):
 
 
 class ImageLogger(Callback):
+    """ 在训练过程中记录和保存图像日志。
+    """
     def __init__(self, batch_frequency, max_images, clamp=True, increase_log_steps=True,
                  rescale=True, disabled=False, log_on_batch_idx=False, log_first_step=False,
                  log_images_kwargs=None):
         super().__init__()
-        self.rescale = rescale
-        self.batch_freq = batch_frequency
-        self.max_images = max_images
+        self.rescale = rescale                  # 表示是否对图像进行重新缩放，将像素值从[-1, 1]转换到[0, 1]范围内
+        self.batch_freq = batch_frequency       # 指多少个批次记录一次图像日志
+        self.max_images = max_images            # 指每次记录的最大图像数量
         self.logger_log_images = {
             pl.loggers.TestTubeLogger: self._testtube,
         }
         self.log_steps = [2 ** n for n in range(int(np.log2(self.batch_freq)) + 1)]
-        if not increase_log_steps:
+        if not increase_log_steps:              # 表示是否按照指数增加记录图像日志的步骤
             self.log_steps = [self.batch_freq]
-        self.clamp = clamp
-        self.disabled = disabled
+        self.clamp = clamp                      # 表示是否将图像像素值限制在[-1, 1]范围内
+        self.disabled = disabled                # 表示是否禁用图像日志记录
         self.log_on_batch_idx = log_on_batch_idx
+                                                # 表示是否根据批次索引记录图像日志，而不是全局步骤（global step）
         self.log_images_kwargs = log_images_kwargs if log_images_kwargs else {}
-        self.log_first_step = log_first_step
-
+                                                # 是一个可选的字典，包含传递给log_images方法的其他参数
+        self.log_first_step = log_first_step    # 表示是否在第一步记录图像日志
     @rank_zero_only
     def _testtube(self, pl_module, images, batch_idx, split):
+        """ 用于将图像日志记录到TestTubeLogger的辅助函数
+        """
         for k in images:
             grid = torchvision.utils.make_grid(images[k])
             grid = (grid + 1.0) / 2.0  # -1,1 -> 0,1; c,h,w
@@ -320,6 +327,8 @@ class ImageLogger(Callback):
     @rank_zero_only
     def log_local(self, save_dir, split, images,
                   global_step, current_epoch, batch_idx):
+        """ 用于在本地保存图像日志的辅助函数
+        """
         root = os.path.join(save_dir, "images", split)
         for k in images:
             grid = torchvision.utils.make_grid(images[k], nrow=4)
@@ -394,6 +403,8 @@ class ImageLogger(Callback):
 
 class CUDACallback(Callback):
     # see https://github.com/SeanNaren/minGPT/blob/master/mingpt/callback.py
+    """ 在 PyTorch Lightning 中训练过程中追踪和记录 GPU 的内存使用情况。
+    """
     def on_train_epoch_start(self, trainer, pl_module):
         # Reset the memory use counter
         torch.cuda.reset_peak_memory_stats(trainer.root_gpu)
