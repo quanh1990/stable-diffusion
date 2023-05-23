@@ -67,6 +67,7 @@ def get_custom_cond(mode):
 
     elif mode == "text_conditional":
         w = widgets.Text(value='A cake with cream!', disabled=True)
+                            # 用于创建交互式小部件（widgets）的 Python 包。它是 Jupyter Notebook 和 JupyterLab 的一部分
         display(w)
 
         with open(f"{dest}/{mode}/custom_{w.value[:20]}.txt", 'w') as f:
@@ -169,7 +170,9 @@ def run(model, selected_path, task, custom_steps, resize_enabled=False, classifi
     for n in range(n_runs):
         if custom_shape is not None:
             x_T = torch.randn(1, custom_shape[1], custom_shape[2], custom_shape[3]).to(model.device)
+                                # T时刻（最后一个时刻）随机初始化一个正太分布
             x_T = repeat(x_T, '1 c h w -> b c h w', b=custom_shape[0])
+                                # 扩充batch
 
         logs = make_convolutional_sample(example, model,
                                          mode=mode, custom_steps=custom_steps,
